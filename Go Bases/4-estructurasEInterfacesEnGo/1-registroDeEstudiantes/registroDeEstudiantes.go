@@ -21,24 +21,16 @@ type Alumnos struct {
 	Fecha    string
 }
 
-func (a Alumnos) Detalle(nombre, apellido, fecha string, dNI int) {
-	a.Nombre = nombre
-	a.Apellido = apellido
-	a.DNI = dNI
-	a.Fecha = fecha
-	fmt.Println(a.Nombre)
-	fmt.Println(a.Apellido)
-	fmt.Println(a.DNI)
-	fmt.Println(a.Fecha)
+func (a Alumnos) Detalle() {
+	fmt.Println(a)
 }
 
-// func printStudentDetails() {
-// 	fmt.Println(s1.Nombre)
-// 	fmt.Println(s1.Apellido)
-// 	fmt.Println(s1.DNI)
-// 	fmt.Println(s1.Fecha)
-// }
-
 func main() {
-
+	a := Alumnos{
+		Nombre:   "Dionys",
+		Apellido: "Seidel",
+		DNI:      39226640,
+		Fecha:    "03/2018",
+	}
+	a.Detalle()
 }
