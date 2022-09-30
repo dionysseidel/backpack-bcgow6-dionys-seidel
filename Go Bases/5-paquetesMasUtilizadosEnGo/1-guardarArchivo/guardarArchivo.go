@@ -24,10 +24,10 @@ func (p Product) details() string {
 
 func saveToTxtFile(purchasedProduct Product) {
 
+	fmt.Println(purchasedProduct.details())
 	data := []byte(purchasedProduct.details())
 
-	// os.Create("purchasedProducts.txt")
-	file, err := os.OpenFile("purchasedProducts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("./Go Bases/5-paquetesMasUtilizadosEnGo/1-guardarArchivo/purchasedProducts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
