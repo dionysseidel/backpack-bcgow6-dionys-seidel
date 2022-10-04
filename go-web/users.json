@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1, 
+        "nombre": "Dionys", 
+        "apellido": "Seidel", 
+        "email": "dionys.seidel@mercadolibre.com", 
+        "edad": 25,
+        "altura": 1.72, 
+        "active": true, 
+        "fechaDeCreación": "2022-10-03"
+    }, {
+        "id": 2,
+        "nombre": "Brian",
+        "apellido": "Heumann",
+        "email": "brianheumann@gmail.com",
+        "edad": 27,
+        "altura": 1.72,
+        "active": true,
+        "fechaDeCreación": "2022-10-03"
+    }, {
+        "id": 3,
+        "nombre": "Hernan",
+        "apellido": "Kleinubing",
+        "email": "hernankleinubing@gmail.com",
+        "edad": 25,
+        "altura": 1.72,
+        "active": false,
+        "fechaDeCreación": "2022-10-03"
+    }
+]
