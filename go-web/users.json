@@ -6,7 +6,7 @@
         "email": "dionys.seidel@mercadolibre.com", 
         "edad": 25,
         "altura": 1.72, 
-        "active": true, 
+        "estaActive": true, 
         "fechaDeCreación": "2022-10-03"
     }, {
         "id": 2,
@@ -15,7 +15,7 @@
         "email": "brianheumann@gmail.com",
         "edad": 27,
         "altura": 1.72,
-        "active": true,
+        "estaActive": true,
         "fechaDeCreación": "2022-10-03"
     }, {
         "id": 3,
@@ -24,7 +24,7 @@
         "email": "hernankleinubing@gmail.com",
         "edad": 25,
         "altura": 1.72,
-        "active": false,
+        "estaActive": false,
         "fechaDeCreación": "2022-10-03"
     }
 ]

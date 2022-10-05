@@ -19,7 +19,7 @@ import (
 func main() {
 	repo := users.NewRepository()
 	service := users.NewService(repo)
-	controller := handler.NewUser(service)
+	controller := handler.NewUserController(service)
 
 	// data, err := ioutil.ReadFile("./go-web/users.json")
 	// if err != nil {
@@ -38,7 +38,10 @@ func main() {
 	{
 		usersEndoint.GET("", controller.GetAll())
 		usersEndoint.POST("", controller.CreateUser())
-		// usersEndoint.GET("/users/:id", GetOne)
+		usersEndoint.DELETE("/:id", controller.Delete)
+		// usersEndoint.GET("/:id", GetOne)
+		usersEndoint.PATCH("/:id", controller.UpdateNameAndAge)
+		usersEndoint.PUT("/:id", controller.Update())
 	}
 	server.Run()
 }
