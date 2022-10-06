@@ -1,6 +1,10 @@
 package users
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/pkg/store"
+)
 
 type User struct {
 	ID       int    `json:id`
@@ -24,17 +28,24 @@ type Repository interface {
 
 type repository struct {
 	// filepath string
+	db store.Store
 }
 
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(db store.Store) Repository {
+	return &repository{
+		db: db,
+	}
 }
 
 func (r *repository) Delete(id int) error {
 	deleted := false
+	var usersInFile []User
+	if err := r.db.Read(&usersInFile); err != nil {
+		return err
+	}
 	var index int
-	for i := range usersSlice {
-		if usersSlice[i].ID == id {
+	for i := range usersInFile {
+		if usersInFile[i].ID == id {
 			index = i
 			deleted = true
 		}
@@ -42,27 +53,53 @@ func (r *repository) Delete(id int) error {
 	if !deleted {
 		return fmt.Errorf("usuarie %d no encontrade", id)
 	}
-	usersSlice = append(usersSlice[:index], usersSlice[index+1:]...)
+	usersInFile = append(usersInFile[:index], usersInFile[index+1:]...)
+	if err := r.db.Write(usersInFile); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r *repository) GetAll() ([]User, error) {
-	return usersSlice, nil
+	var usersFromFile []User
+	if err := r.db.Read(&usersFromFile); err != nil {
+		return usersFromFile, err
+	}
+	// usersSlice = append(usersSlice, usersFromFile...)
+	return usersFromFile, nil
 }
 
 func (r *repository) LastID() (int, error) {
-	return len(usersSlice) + 1, nil
+	var usersFromFile []User
+	var usersInFile int
+	if err := r.db.Read(&usersFromFile); err != nil {
+		return len(usersSlice), err
+	}
+	usersInFile = len(usersFromFile)
+	totalUsers := len(usersSlice) + usersInFile
+	if totalUsers == 0 {
+		return 0, nil
+	}
+	return totalUsers, nil
 }
 
 func (r *repository) Store(id int, name string, isActive bool, age int) (User, error) {
+	var usersInFile []User
+	if err := r.db.Read(&usersInFile); err != nil {
+		return User{}, err
+	}
+	// usersSlice = append(usersSlice, usersInFile...)
 	userToCreate := User{
 		ID:       id,
 		Name:     name,
 		IsActive: isActive,
 		Age:      age,
 	}
-	usersSlice = append(usersSlice, userToCreate)
+	usersInFile = append(usersInFile, userToCreate)
 	// fmt.Println("userSlice in Store method in repository", usersSlice)
+	if err := r.db.Write(usersInFile); err != nil {
+		return User{}, err
+	}
 	return userToCreate, nil
 }
 

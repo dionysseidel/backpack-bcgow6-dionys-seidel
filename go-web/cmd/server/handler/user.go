@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/internal/users"
@@ -29,14 +30,12 @@ func NewUserController(u users.Service) *UserController {
 }
 
 func (controller *UserController) CreateUser() gin.HandlerFunc {
-	return func(ginContext *gin.Context) {
-		token := ginContext.Request.Header.Get("token") /*ginContext.GetHeader("token") */
-		if token != "123456" || token == "" {
-			ginContext.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+	return func(ctx *gin.Context) {
+		if isAuthenticated := validateToken(ctx); !isAuthenticated {
 			return
 		}
 		var userToCreate userToCreate
-		if err := ginContext.ShouldBindJSON(&userToCreate); err != nil {
+		if err := ctx.ShouldBindJSON(&userToCreate); err != nil {
 			if userToCreate.Name == "" {
 				returnErrorEmptyField("Nombre")
 				return
@@ -48,17 +47,15 @@ func (controller *UserController) CreateUser() gin.HandlerFunc {
 		}
 		userToReturn, err := controller.service.Store(userToCreate.Name, userToCreate.IsActive, userToCreate.Age)
 		if err != nil {
-			ginContext.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
 		}
-		ginContext.JSON(200, userToReturn)
+		ctx.JSON(200, userToReturn)
 	}
 }
 
 func (controller *UserController) Delete(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("token")
-	if token != "123456" || token == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+	if isAuthenticated := validateToken(ctx); !isAuthenticated {
 		return
 	}
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -76,9 +73,7 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 
 func (controller *UserController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("token")
-		if token != "123456" || token == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+		if isAuthenticated := validateToken(ctx); !isAuthenticated {
 			return
 		}
 		allUsers, err := controller.service.GetAll()
@@ -110,9 +105,7 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 
 func (controller *UserController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("token")
-		if token != "123456" || token == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+		if isAuthenticated := validateToken(ctx); !isAuthenticated {
 			return
 		}
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -141,9 +134,7 @@ func (controller *UserController) Update() gin.HandlerFunc {
 }
 
 func (controller *UserController) UpdateNameAndAge(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("token")
-	if token != "123456" || token == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+	if isAuthenticated := validateToken(ctx); !isAuthenticated {
 		return
 	}
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -176,4 +167,15 @@ func returnErrorEmptyField(fieldName string) gin.HandlerFunc {
 			"error": fmt.Sprintf("el campo %s es requerido", fieldName),
 		})
 	}
+}
+
+func validateToken(ctx *gin.Context) (authenticated bool) {
+	token := ctx.GetHeader("token") /*ctx.Request.Header.Get("token")*/
+	// ... Me imagino que acá querría persistir le token en el archivo .env
+	if token != os.Getenv("TOKEN") || token == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+		authenticated = false
+		return
+	}
+	return true
 }

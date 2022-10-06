@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/cmd/server/handler"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/internal/users"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/pkg/store"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // func GetOne(ctx *gin.Context) {
@@ -17,7 +19,9 @@ import (
 // }
 
 func main() {
-	repo := users.NewRepository()
+	_ = godotenv.Load()
+	db := store.New(store.FileType, "./users.json")
+	repo := users.NewRepository(db)
 	service := users.NewService(repo)
 	controller := handler.NewUserController(service)
 

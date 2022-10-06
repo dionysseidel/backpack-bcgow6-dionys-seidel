@@ -36,7 +36,7 @@ func (s *service) Store(name string, isActive bool, age int) (User, error) {
 		return User{}, err
 	}
 
-	user, err := s.repository.Store(lastID, name, isActive, age)
+	user, err := s.repository.Store(lastID+1, name, isActive, age)
 	if err != nil {
 		return User{}, err
 	}
