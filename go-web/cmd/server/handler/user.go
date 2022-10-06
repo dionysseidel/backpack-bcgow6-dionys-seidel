@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/internal/users"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,10 +48,10 @@ func (controller *UserController) CreateUser() gin.HandlerFunc {
 		}
 		userToReturn, err := controller.service.Store(userToCreate.Name, userToCreate.IsActive, userToCreate.Age)
 		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 			return
 		}
-		ctx.JSON(200, userToReturn)
+		ctx.JSON(200, web.NewResponse(200, userToReturn, ""))
 	}
 }
 
@@ -60,15 +61,15 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 	}
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "invalid ID"})
+		ctx.JSON(400, web.NewResponse(400, nil, "invalid ID"))
 		return
 	}
 	err = controller.service.Delete(int(id))
 	if err != nil {
-		ctx.JSON(404, gin.H{"error": err.Error()})
+		ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 		return
 	}
-	ctx.JSON(200, gin.H{"data": fmt.Sprintf("Le usuarie %d ha sido eliminade", id)})
+	ctx.JSON(200, web.NewResponse(200, fmt.Sprintf("Le usuarie %d ha sido eliminade", id), ""))
 }
 
 func (controller *UserController) GetAll() gin.HandlerFunc {
@@ -78,9 +79,7 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 		}
 		allUsers, err := controller.service.GetAll()
 		if err != nil {
-			ctx.JSON(404, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 		}
 		_, isPresent := ctx.GetQuery("active")
 		if isPresent {
@@ -96,9 +95,9 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 					}
 				}
 			}
-			ctx.JSON(http.StatusOK, filteredUsers)
+			ctx.JSON(http.StatusOK, web.NewResponse(200, filteredUsers, ""))
 		} else {
-			ctx.JSON(http.StatusOK, allUsers)
+			ctx.JSON(http.StatusOK, web.NewResponse(200, allUsers, ""))
 		}
 	}
 }
@@ -110,7 +109,7 @@ func (controller *UserController) Update() gin.HandlerFunc {
 		}
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			ctx.JSON(400, web.NewResponse(400, nil, "invalid ID"))
 			return
 		}
 		var userToCreate userToCreate
@@ -126,10 +125,10 @@ func (controller *UserController) Update() gin.HandlerFunc {
 		}
 		userToUpdate, err := controller.service.Update(int(id), userToCreate.Name, userToCreate.IsActive, userToCreate.Age)
 		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 			return
 		}
-		ctx.JSON(200, userToUpdate)
+		ctx.JSON(200, web.NewResponse(200, userToUpdate, ""))
 	}
 }
 
@@ -139,7 +138,7 @@ func (controller *UserController) UpdateNameAndAge(ctx *gin.Context) {
 	}
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "invalid ID"})
+		ctx.JSON(400, web.NewResponse(400, nil, "invalid ID"))
 		return
 	}
 	var userToCreate userToCreate
@@ -155,17 +154,15 @@ func (controller *UserController) UpdateNameAndAge(ctx *gin.Context) {
 	}
 	userToUpdate, err := controller.service.Update(int(id), userToCreate.Name, userToCreate.IsActive, userToCreate.Age)
 	if err != nil {
-		ctx.JSON(404, gin.H{"error": err.Error()})
+		ctx.JSON(404, web.NewResponse(404, nil, err.Error()))
 		return
 	}
 	ctx.JSON(200, userToUpdate)
 }
 
 func returnErrorEmptyField(fieldName string) gin.HandlerFunc {
-	return func(ginContext *gin.Context) {
-		ginContext.JSON(400, gin.H{
-			"error": fmt.Sprintf("el campo %s es requerido", fieldName),
-		})
+	return func(ctx *gin.Context) {
+		ctx.JSON(400, web.NewResponse(400, nil, fmt.Sprintf("el campo %s es requerido", fieldName)))
 	}
 }
 
@@ -173,7 +170,7 @@ func validateToken(ctx *gin.Context) (authenticated bool) {
 	token := ctx.GetHeader("token") /*ctx.Request.Header.Get("token")*/
 	// ... Me imagino que acá querría persistir le token en el archivo .env
 	if token != os.Getenv("TOKEN") || token == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no tiene permisos para realizar la petición solicitada"})
+		ctx.JSON(http.StatusUnauthorized, web.NewResponse(401, nil, "no tiene permisos para realizar la petición solicitada"))
 		authenticated = false
 		return
 	}

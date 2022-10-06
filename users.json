@@ -6,9 +6,15 @@
     "edad": 23
   },
   {
-    "ID": 2,
-    "nombre": "Samuel",
-    "estaActive": true,
+    "ID": 3,
+    "nombre": "Gaby",
+    "estaActive": false,
+    "edad": 23
+  },
+  {
+    "ID": 4,
+    "nombre": "Gaby",
+    "estaActive": false,
     "edad": 23
   }
 ]
