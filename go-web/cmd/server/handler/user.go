@@ -36,18 +36,18 @@ var stringifiedFalseBool = strconv.FormatBool(false)
 var stringifiedTrueBool = strconv.FormatBool(true)
 
 // StoreUser godoc
-// @Summary Store user
-// @Tags Users
+// @Summary     Store user
+// @Tags        Users
 // @Description store users
-// @Accept json
-// @Produce json
-// @Param token header string true "token requeridx"
-// @Param user body userRequest true "User to store"
-// @Success 200 {object} web.Response
-// @Failure 400 {object} web.Response
-// @Failure 401 {object} web.Response
-// @Failure 409 {object} web.Response
-// @Router /users [POST]
+// @Accept      json
+// @Produce     json
+// @Param       token header   string      true "token requeridx"
+// @Param       user  body     userRequest true "User to store"
+// @Success     200   {object} web.Response
+// @Failure     400   {object} web.Response
+// @Failure     401   {object} web.Response
+// @Failure     409   {object} web.Response
+// @Router      /users [POST]
 func (controller *UserController) CreateUser() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if isAuthenticated := validateToken(ctx); !isAuthenticated {
@@ -80,14 +80,14 @@ func (controller *UserController) CreateUser() gin.HandlerFunc {
 
 // DeleteUser
 // @Summary Delete user
-// @Tags Users
-// @Param id path int true "user ID"
-// @Param token header string true "token"
+// @Tags    Users
+// @Param   id    path   int    true "user ID"
+// @Param   token header string true "token"
 // @Success 204
 // @Failure 400 {object} web.Response
 // @Failure 401 {object} web.Response
 // @Failure 404 {object} web.Response
-// @Router /users/{id} [DELETE]
+// @Router  /users/{id} [DELETE]
 func (controller *UserController) Delete(ctx *gin.Context) {
 	if isAuthenticated := validateToken(ctx); !isAuthenticated {
 		return
@@ -108,17 +108,17 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 }
 
 // ListUsers godoc
-// @Summary Show list users
-// @Tags Users
+// @Summary     Show list users
+// @Tags        Users
 // @Description get users
-// @Accept json
-// @Produce json
-// @Param token header string true "token"
-// @Success 200 {object} web.Response "List users"
-// @Failure 401 {object} web.Response "unauthorized"
-// @Failure 404 {object} web.Response "not found users"
-// @Failure 500 {object} web.Response "internal server error"
-// @Router /users [GET]
+// @Accept      json
+// @Produce     json
+// @Param       token header   string       true "token"
+// @Success     200   {object} web.Response "List users"
+// @Failure     401   {object} web.Response "unauthorized"
+// @Failure     404   {object} web.Response "not found users"
+// @Failure     500   {object} web.Response "internal server error"
+// @Router      /users [GET]
 func (controller *UserController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if isAuthenticated := validateToken(ctx); !isAuthenticated {
@@ -159,17 +159,17 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 
 // UpdateUser godoc
 // @Summary Update user
-// @Tags Users
-// @Accept json
+// @Tags    Users
+// @Accept  json
 // @Produce json
-// @Param id path int true "ID user"
-// @Param token header string false "token"
-// @Param user body userRequest true "User to update"
-// @Success 200 {object} web.Response
-// @Failure 400 {object} web.Response
-// @Failure 401 {object} web.Response
-// @Failure 404 {object} web.Response
-// @Router /users/{id} [PUT]
+// @Param   id    path     int         true  "ID user"
+// @Param   token header   string      false "token"
+// @Param   user  body     userRequest true  "User to update"
+// @Success 200   {object} web.Response
+// @Failure 400   {object} web.Response
+// @Failure 401   {object} web.Response
+// @Failure 404   {object} web.Response
+// @Router  /users/{id} [PUT]
 func (controller *UserController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if isAuthenticated := validateToken(ctx); !isAuthenticated {
@@ -207,15 +207,15 @@ func (controller *UserController) Update() gin.HandlerFunc {
 }
 
 // UpdateUserNameAndAge
-// @Summary Update user name and age
-// @Tags Users
-// @Accept json
-// @Produce json
+// @Summary     Update user name and age
+// @Tags        Users
+// @Accept      json
+// @Produce     json
 // @Description This endpoint updates name and age fields from an user
-// @Param token header string true "token header"
-// @Param id path int true "user ID"
-// @Param name body userRequestPatch true "user name"
-// @Param age body userRequestPatch true "user age"
+// @Param       token header string           true "token header"
+// @Param       id    path   int              true "user ID"
+// @Param       name  body   userRequestPatch true "user name"
+// @Param       age   body   userRequestPatch true "user age"
 func (controller *UserController) UpdateNameAndAge(ctx *gin.Context) {
 	if isAuthenticated := validateToken(ctx); !isAuthenticated {
 		return

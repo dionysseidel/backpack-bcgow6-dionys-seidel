@@ -20,19 +20,19 @@ import (
 // 	ctx.String(200, "Employee information %s, name: %s \n", ctx.Param("id"), user)
 // }
 
-// @title Bootcamp Go Wave 6 - API
-// @version 1.0
-// @description This API Handle MELI Users. This is a simple API development conducted by Digital House's team.
+// @title          Bootcamp Go Wave 6 - API
+// @version        1.0
+// @description    This API Handle MELI Users. This is a simple API development conducted by Digital House's team.
 // @termsOfService https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
 
-// @contact.name API Support Dionys Seidel
-// @contact.url http://www.swagger.io/support
+// @contact.name  API Support Dionys Seidel
+// @contact.url   http://www.swagger.io/support
 // @contact.email support@swagger.io
 
 // @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @license.url  http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
+// @host     localhost:8080
 // @BasePath /api/v1
 func main() {
 	loadEnd()
