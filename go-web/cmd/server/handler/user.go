@@ -3,9 +3,9 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/domains"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/users"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/web"
 	"github.com/gin-gonic/gin"
@@ -50,10 +50,6 @@ var stringifiedTrueBool = strconv.FormatBool(true)
 // @Router      /users [POST]
 func (controller *UserController) CreateUser() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if isAuthenticated := validateToken(ctx); !isAuthenticated {
-			return
-		}
-
 		var userToCreate userRequest
 		if err := ctx.ShouldBindJSON(&userToCreate); err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(400, nil, err.Error()))
@@ -89,10 +85,6 @@ func (controller *UserController) CreateUser() gin.HandlerFunc {
 // @Failure 404 {object} web.Response
 // @Router  /users/{id} [DELETE]
 func (controller *UserController) Delete(ctx *gin.Context) {
-	if isAuthenticated := validateToken(ctx); !isAuthenticated {
-		return
-	}
-
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, web.NewResponse(400, nil, "ID inválio - "+err.Error()))
@@ -121,10 +113,6 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 // @Router      /users [GET]
 func (controller *UserController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if isAuthenticated := validateToken(ctx); !isAuthenticated {
-			return
-		}
-
 		allUsers, err := controller.service.GetAll()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, web.NewResponse(500, nil, err.Error()))
@@ -133,7 +121,7 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 
 		_, isPresent := ctx.GetQuery("active")
 		if isPresent {
-			var filteredUsers []users.User
+			var filteredUsers []domains.User
 			for _, user := range allUsers {
 				switch ctx.Query("active") == strconv.FormatBool(true) {
 				case user.IsActive:
@@ -172,10 +160,6 @@ func (controller *UserController) GetAll() gin.HandlerFunc {
 // @Router  /users/{id} [PUT]
 func (controller *UserController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if isAuthenticated := validateToken(ctx); !isAuthenticated {
-			return
-		}
-
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(400, nil, "ID inválido - "+err.Error()))
@@ -217,10 +201,6 @@ func (controller *UserController) Update() gin.HandlerFunc {
 // @Param       name  body   userRequestPatch true "user name"
 // @Param       age   body   userRequestPatch true "user age"
 func (controller *UserController) UpdateNameAndAge(ctx *gin.Context) {
-	if isAuthenticated := validateToken(ctx); !isAuthenticated {
-		return
-	}
-
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, web.NewResponse(400, nil, "ID inválido - "+err.Error()))
@@ -254,15 +234,4 @@ func returnErrorEmptyField(fieldName string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, web.NewResponse(400, nil, fmt.Sprintf("el campo %s es requerido", fieldName)))
 	}
-}
-
-func validateToken(ctx *gin.Context) (authenticated bool) {
-	token := ctx.GetHeader("token") /*ctx.Request.Header.Get("token")*/
-	// ... Me imagino que acá querría persistir le token en el archivo .env
-	if token != os.Getenv("TOKEN") || token == "" {
-		ctx.JSON(http.StatusUnauthorized, web.NewResponse(401, nil, "no tiene permisos para realizar la petición solicitada"))
-		authenticated = false
-		return
-	}
-	return true
 }

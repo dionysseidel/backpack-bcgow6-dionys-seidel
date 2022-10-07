@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/cmd/server/handler"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/users"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/swag/example/basic/docs"
 )
 
 // func GetOne(ctx *gin.Context) {
@@ -36,34 +40,36 @@ import (
 // @BasePath /api/v1
 func main() {
 	loadEnd()
+
 	db := store.New(store.FileType, "./users.json")
 	repo := users.NewRepository(db)
 	service := users.NewService(repo)
 	controller := handler.NewUserController(service)
 
-	// data, err := ioutil.ReadFile("./go-web/users.json")
-	// if err != nil {
-	// 	log.Fatal("file is not being read", err)
-	// }
-	// err = json.Unmarshal(data, &usersSlice)
-	// if err != nil {
-	// 	log.Fatal("JSON cannot be decoded", err)
-	// }
-	// fmt.Println("usersSlice en main", usersSlice)
-	server := gin.Default()
-	// server.GET("/hello-name", func(c *gin.Context) {
+	router := gin.Default()
+
+	api := router.Group("/api/v1")
+
+	// Documentación Swagger
+	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// router.GET("/hello-name", func(c *gin.Context) {
 	// 	c.JSON(200, gin.H{"message": "Hola " + usersSlice[0].Name})
 	// })
-	usersEndoint := server.Group("/users")
+	usersEndoint := router.Group("/users")
 	{
-		usersEndoint.GET("", controller.GetAll())
-		usersEndoint.POST("", controller.CreateUser())
-		usersEndoint.DELETE("/:id", controller.Delete)
-		// usersEndoint.GET("/:id", GetOne)
-		usersEndoint.PATCH("/:id", controller.UpdateNameAndAge)
-		usersEndoint.PUT("/:id", controller.Update())
+		usersEndoint.GET("", handler.MiddlewareList(controller.GetAll())...)
+		usersEndoint.POST("", handler.MiddlewareList(controller.CreateUser())...)
+		usersEndoint.DELETE("/:id", handler.MiddlewareList(controller.Delete)...)
+		// usersEndoint.GET("/:id", handler.MiddlewareList(GetOne)...)
+		usersEndoint.PATCH("/:id", handler.MiddlewareList(controller.UpdateNameAndAge)...)
+		usersEndoint.PUT("/:id", handler.MiddlewareList(controller.Update())...)
 	}
-	server.Run()
+
+	if err := router.Run(); err != nil {
+		panic(err)
+	}
 }
 
 func loadEnd() {

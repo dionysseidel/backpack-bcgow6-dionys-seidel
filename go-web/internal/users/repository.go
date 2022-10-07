@@ -3,27 +3,21 @@ package users
 import (
 	"fmt"
 
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/domains"
 	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/store"
 )
 
-type User struct {
-	ID       int    `json:id`
-	Name     string `json:"nombre" binding:"required"`
-	IsActive bool   `json:"estaActive"`
-	Age      int    `json:"edad" binding:"required"`
-}
-
-type Users []User
+type Users []domains.User
 
 var usersSlice Users
 
 type Repository interface {
 	Delete(id int) error
-	GetAll() ([]User, error)
+	GetAll() ([]domains.User, error)
 	LastID() (int, error)
-	Store(id int, name string, isActive bool, age int) (User, error)
-	Update(id int, name string, active bool, age int) (User, error)
-	UpdateNameAndAge(id int, name string, age int) (User, error)
+	Store(id int, name string, isActive bool, age int) (domains.User, error)
+	Update(id int, name string, active bool, age int) (domains.User, error)
+	UpdateNameAndAge(id int, name string, age int) (domains.User, error)
 }
 
 type repository struct {
@@ -39,7 +33,7 @@ func NewRepository(db store.Store) Repository {
 
 func (r *repository) Delete(id int) error {
 	deleted := false
-	var usersInFile []User
+	var usersInFile []domains.User
 	if err := r.db.Read(&usersInFile); err != nil {
 		return err
 	}
@@ -60,8 +54,8 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func (r *repository) GetAll() ([]User, error) {
-	var usersFromFile []User
+func (r *repository) GetAll() ([]domains.User, error) {
+	var usersFromFile []domains.User
 	if err := r.db.Read(&usersFromFile); err != nil {
 		return usersFromFile, err
 	}
@@ -70,7 +64,7 @@ func (r *repository) GetAll() ([]User, error) {
 }
 
 func (r *repository) LastID() (int, error) {
-	var usersFromFile []User
+	var usersFromFile []domains.User
 	var usersInFile int
 	if err := r.db.Read(&usersFromFile); err != nil {
 		return len(usersSlice), err
@@ -83,13 +77,13 @@ func (r *repository) LastID() (int, error) {
 	return totalUsers, nil
 }
 
-func (r *repository) Store(id int, name string, isActive bool, age int) (User, error) {
-	var usersInFile []User
+func (r *repository) Store(id int, name string, isActive bool, age int) (domains.User, error) {
+	var usersInFile []domains.User
 	if err := r.db.Read(&usersInFile); err != nil {
-		return User{}, err
+		return domains.User{}, err
 	}
 	// usersSlice = append(usersSlice, usersInFile...)
-	userToCreate := User{
+	userToCreate := domains.User{
 		ID:       id,
 		Name:     name,
 		IsActive: isActive,
@@ -98,13 +92,13 @@ func (r *repository) Store(id int, name string, isActive bool, age int) (User, e
 	usersInFile = append(usersInFile, userToCreate)
 	// fmt.Println("userSlice in Store method in repository", usersSlice)
 	if err := r.db.Write(usersInFile); err != nil {
-		return User{}, err
+		return domains.User{}, err
 	}
 	return userToCreate, nil
 }
 
-func (r *repository) Update(id int, name string, isActive bool, age int) (User, error) {
-	userToUpdate := User{
+func (r *repository) Update(id int, name string, isActive bool, age int) (domains.User, error) {
+	userToUpdate := domains.User{
 		Name:     name,
 		IsActive: isActive,
 		Age:      age,
@@ -118,13 +112,13 @@ func (r *repository) Update(id int, name string, isActive bool, age int) (User, 
 		}
 	}
 	if !isUpdated {
-		return User{}, fmt.Errorf("User %d no encontrade", id)
+		return domains.User{}, fmt.Errorf("User %d no encontrade", id)
 	}
 	return userToUpdate, nil
 }
 
-func (r *repository) UpdateNameAndAge(id int, name string, age int) (User, error) {
-	var userToReturn User
+func (r *repository) UpdateNameAndAge(id int, name string, age int) (domains.User, error) {
+	var userToReturn domains.User
 	updated := false
 	for _, userToUpdate := range usersSlice {
 		if userToUpdate.ID == id {
@@ -134,7 +128,7 @@ func (r *repository) UpdateNameAndAge(id int, name string, age int) (User, error
 		}
 	}
 	if !updated {
-		return User{}, fmt.Errorf("Usuarie %d no encontrade", id)
+		return domains.User{}, fmt.Errorf("Usuarie %d no encontrade", id)
 	}
 	return userToReturn, nil
 }
