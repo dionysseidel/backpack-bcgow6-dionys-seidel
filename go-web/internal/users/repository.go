@@ -3,7 +3,7 @@ package users
 import (
 	"fmt"
 
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/pkg/store"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/store"
 )
 
 type User struct {

@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/cmd/server/handler"
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/internal/users"
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-web/pkg/store"
+	"log"
+
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/cmd/server/handler"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/users"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -18,8 +20,22 @@ import (
 // 	ctx.String(200, "Employee information %s, name: %s \n", ctx.Param("id"), user)
 // }
 
+// @title Bootcamp Go Wave 6 - API
+// @version 1.0
+// @description This API Handle MELI Users. This is a simple API development conducted by Digital House's team.
+// @termsOfService https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
+
+// @contact.name API Support Dionys Seidel
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-	_ = godotenv.Load()
+	loadEnd()
 	db := store.New(store.FileType, "./users.json")
 	repo := users.NewRepository(db)
 	service := users.NewService(repo)
@@ -48,4 +64,11 @@ func main() {
 		usersEndoint.PUT("/:id", controller.Update())
 	}
 	server.Run()
+}
+
+func loadEnd() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("No se pudo cargar las variables de entorno - error: ", err)
+	}
 }
