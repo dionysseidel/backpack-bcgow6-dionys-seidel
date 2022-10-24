@@ -3,29 +3,29 @@ package users
 import (
 	"fmt"
 
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/internal/domains"
-	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/pkg/store"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-testing/go-web/internal/domain"
+	"github.com/dionysseidel/backpack-bcgow6-dionys-seidel/go-testing/go-web/pkg/store"
 )
 
-type Users []domains.User
+type Users []domain.User
 
 var usersSlice Users
 
 type Repository interface {
 	Delete(id int) error
-	GetAll() ([]domains.User, error)
+	GetAll() ([]domain.User, error)
 	LastID() (int, error)
-	Store(id int, name string, isActive bool, age int) (domains.User, error)
-	Update(id int, name string, active bool, age int) (domains.User, error)
-	UpdateNameAndAge(id int, name string, age int) (domains.User, error)
+	Store(id int, name string, isActive bool, age int) (domain.User, error)
+	Update(id int, name string, active bool, age int) (domain.User, error)
+	UpdateNameAndAge(id int, name string, age int) (domain.User, error)
 }
 
 type repository struct {
 	// filepath string
-	db store.Store
+	db store.Storage
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db store.Storage) Repository {
 	return &repository{
 		db: db,
 	}
@@ -33,10 +33,12 @@ func NewRepository(db store.Store) Repository {
 
 func (r *repository) Delete(id int) error {
 	deleted := false
-	var usersInFile []domains.User
+
+	var usersInFile []domain.User
 	if err := r.db.Read(&usersInFile); err != nil {
 		return err
 	}
+
 	var index int
 	for i := range usersInFile {
 		if usersInFile[i].ID == id {
@@ -47,15 +49,18 @@ func (r *repository) Delete(id int) error {
 	if !deleted {
 		return fmt.Errorf("usuarie %d no encontrade", id)
 	}
+
 	usersInFile = append(usersInFile[:index], usersInFile[index+1:]...)
+
 	if err := r.db.Write(usersInFile); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (r *repository) GetAll() ([]domains.User, error) {
-	var usersFromFile []domains.User
+func (r *repository) GetAll() ([]domain.User, error) {
+	var usersFromFile []domain.User
 	if err := r.db.Read(&usersFromFile); err != nil {
 		return usersFromFile, err
 	}
@@ -64,7 +69,7 @@ func (r *repository) GetAll() ([]domains.User, error) {
 }
 
 func (r *repository) LastID() (int, error) {
-	var usersFromFile []domains.User
+	var usersFromFile []domain.User
 	var usersInFile int
 	if err := r.db.Read(&usersFromFile); err != nil {
 		return len(usersSlice), err
@@ -77,13 +82,13 @@ func (r *repository) LastID() (int, error) {
 	return totalUsers, nil
 }
 
-func (r *repository) Store(id int, name string, isActive bool, age int) (domains.User, error) {
-	var usersInFile []domains.User
+func (r *repository) Store(id int, name string, isActive bool, age int) (domain.User, error) {
+	var usersInFile []domain.User
 	if err := r.db.Read(&usersInFile); err != nil {
-		return domains.User{}, err
+		return domain.User{}, err
 	}
 
-	userToCreate := domains.User{
+	userToCreate := domain.User{
 		ID:       id,
 		Name:     name,
 		IsActive: isActive,
@@ -93,34 +98,45 @@ func (r *repository) Store(id int, name string, isActive bool, age int) (domains
 	usersInFile = append(usersInFile, userToCreate)
 
 	if err := r.db.Write(usersInFile); err != nil {
-		return domains.User{}, err
+		return domain.User{}, err
 	}
 
 	return userToCreate, nil
 }
 
-func (r *repository) Update(id int, name string, isActive bool, age int) (domains.User, error) {
-	userToUpdate := domains.User{
+func (r *repository) Update(id int, name string, isActive bool, age int) (domain.User, error) {
+	userToUpdate := domain.User{
 		Name:     name,
 		IsActive: isActive,
 		Age:      age,
 	}
 	isUpdated := false
-	for i := range usersSlice {
-		if usersSlice[i].ID == id {
+
+	var usersInFile []domain.User
+	if err := r.db.Read(&usersInFile); err != nil {
+		return domain.User{}, err
+	}
+
+	for i := range usersInFile {
+		if usersInFile[i].ID == id {
 			userToUpdate.ID = id
-			usersSlice[i] = userToUpdate
+			usersInFile[i] = userToUpdate
 			isUpdated = true
 		}
 	}
 	if !isUpdated {
-		return domains.User{}, fmt.Errorf("User %d no encontrade", id)
+		return domain.User{}, fmt.Errorf("User %d no encontrade", id)
 	}
+
+	if err := r.db.Write(usersInFile); err != nil {
+		return domain.User{}, err
+	}
+
 	return userToUpdate, nil
 }
 
-func (r *repository) UpdateNameAndAge(id int, name string, age int) (domains.User, error) {
-	var userToReturn domains.User
+func (r *repository) UpdateNameAndAge(id int, name string, age int) (domain.User, error) {
+	var userToReturn domain.User
 	updated := false
 	for _, userToUpdate := range usersSlice {
 		if userToUpdate.ID == id {
@@ -130,7 +146,7 @@ func (r *repository) UpdateNameAndAge(id int, name string, age int) (domains.Use
 		}
 	}
 	if !updated {
-		return domains.User{}, fmt.Errorf("Usuarie %d no encontrade", id)
+		return domain.User{}, fmt.Errorf("Usuarie %d no encontrade", id)
 	}
 	return userToReturn, nil
 }
